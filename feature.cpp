@@ -23,6 +23,16 @@ void Feature::set_feature_type(FeatureType ftrType)
 	ftr_type_ = ftrType;
 }
 
+void Feature::set_error(double error)
+{
+    error_ = error;
+}
+
+void Feature::set_beta(double beta)
+{
+    beta_ = beta;
+}
+
 void Feature::set_log_beta(double log_beta)
 {
 	log_beta_ = log_beta;
@@ -73,6 +83,45 @@ bool Feature::is_taken() const
 	return is_taken_flag_;
 }
 
+int Feature::computeFeature(int first_pixel_value, int second_pixel_value)
+{
+    int answer = 0;
+    switch (ftr_type_)
+    {
+    case greater_type:
+        answer = first_pixel_value > second_pixel_value ? 1 : 0;
+        break;
+    case within5_type:
+        answer = get_asnwer_pixel(first_pixel_value, second_pixel_value, 5);
+        break;
+    case within10_type:
+        answer = get_asnwer_pixel(first_pixel_value, second_pixel_value, 10);
+        break;
+    case within25_type:
+        answer = get_asnwer_pixel(first_pixel_value, second_pixel_value, 25);
+        break;
+    case within50_type:
+        answer = get_asnwer_pixel(first_pixel_value, second_pixel_value, 50);
+        break;
+    case no_type:
+        std::cout << "Type isn't chosen!\n";
+        break;
+    default:
+        std::cout << "Type " << ftr_type_ << " doesn't exist.";
+        break;
+    }
+
+    //if (inverse_parity_)
+    //    answer = (answer == 1) ? 0 : 1;
+
+    return answer;
+}
+
+void Feature::addToError(double weight)
+{
+    error_ += weight;
+}
+
 int Feature::computeFeature(const Sample& smpl)
 {
 	int answer = 0;
@@ -84,16 +133,16 @@ int Feature::computeFeature(const Sample& smpl)
 			answer = 1;
 		break;
 	case within5_type:
-		answer = get_asnwer(smpl, 5);
+		answer = get_asnwer_sample(smpl, 5);
 		break;
 	case within10_type:
-		answer = get_asnwer(smpl, 10);
+		answer = get_asnwer_sample(smpl, 10);
 		break;
 	case within25_type:
-		answer = get_asnwer(smpl, 25);
+		answer = get_asnwer_sample(smpl, 25);
 		break;
 	case within50_type:
-		answer = get_asnwer(smpl, 50);
+		answer = get_asnwer_sample(smpl, 50);
 		break;
 	case no_type:
 		std::cout << "Type isn't chosen!\n";
@@ -105,11 +154,10 @@ int Feature::computeFeature(const Sample& smpl)
 
 	if (inverse_parity_)
 		answer = (answer == 1) ? 0 : 1;
-
 	return answer;
 }
 
-inline int Feature::get_asnwer(const Sample& smpl, int typeValue)
+inline int Feature::get_asnwer_sample(const Sample& smpl, int typeValue)
 {
 	int value;
 	uint8_t lowerBound;
@@ -128,21 +176,27 @@ inline int Feature::get_asnwer(const Sample& smpl, int typeValue)
 	return 0;
 }
 
-void Feature::computeError(const SamplesHandler& trainSamplesH)
+inline int Feature::get_asnwer_pixel(int first_pixel_value, 
+    int second_pixel_value, int type_value)
 {
-	double sum = 0;
-	int samples_amount = trainSamplesH.get_amount();
-	for (int i = 0; i < samples_amount; i++)
-	{
-		const Sample* sample = &trainSamplesH[i];
-		int answer = computeFeature(*sample);
-		if (answer != sample->get_label())
-			sum += sample->get_weight();
-	}
+    uint8_t lowerBound;
+    uint8_t upperBound;
 
-	error_ = sum;
-	beta_ = error_ / (1 - error_);
-	log_beta_ = log(1.0 / beta_);
+    int value = first_pixel_value - type_value;
+    lowerBound = value < 0 ? 0 : static_cast<uint8_t>(value);
+    value = second_pixel_value + type_value;
+    upperBound = value > 255 ? 255 : static_cast<uint8_t>(value);
+
+    if ((first_pixel_value >= lowerBound)
+        && (first_pixel_value <= upperBound))
+        return 1;
+    return 0;
+}
+
+void Feature::computeBetaAndLogBeta()
+{
+    beta_ = error_ / (1 - error_);
+    log_beta_ = log(1.0 / beta_);
 }
 
 void Feature::show()

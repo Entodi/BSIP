@@ -23,7 +23,7 @@ public:
 		first_pixel_(Pixel()), 
 		second_pixel_(Pixel()), 
 		inverse_parity_(0), 
-		error_(2.0), 
+		error_(0.0), 
 		beta_(0), 
 		log_beta_(0), 
 		is_taken_flag_(false) {};
@@ -31,6 +31,8 @@ public:
 	void		set_pixels(const Pixel& first_pixel, const Pixel& second_pixel);
 	void		set_inverse_parity(int inverse_parity);
 	void		set_feature_type(FeatureType ftr_type);
+    void        set_error(double error);
+    void        set_beta(double beta);
 	void		set_log_beta(double log_beta);
 	int			get_inverse_parity() const;
 	double		get_error() const;
@@ -43,14 +45,18 @@ public:
 	void		took();
 	bool		is_taken() const;
 	
-	void		computeError(const SamplesHandler& trainSamplesH);
-	int			computeFeature(const Sample& smpl);
+    void        addToError(double weight);
 
+    void        computeBetaAndLogBeta();
+	int			computeFeature(const Sample& smpl);
+    int         computeFeature(int first_pixel_value, int second_pixel_value);
+	
 	void		show();
 
 	bool		operator<(const Feature& ftr) const;
 private:
-	int			get_asnwer(const Sample& smpl, int typeValue);
+	int			get_asnwer_sample(const Sample& smpl, int type_value);
+    int			get_asnwer_pixel(int first, int second, int type_value);
 
 	FeatureType ftr_type_;
 	Pixel first_pixel_;

@@ -15,8 +15,10 @@ bool AdaBoost::adaboost(SamplesHandler& train_samples_handler,
 	for (int t = 0; t < num_classifiers; t++)
 	{
 		Feature best_feature;
+        best_feature.addToError(2.0);
 		train_samples_handler.normalizeWeights();
 		searchFeature(train_samples_handler, best_feature);
+        best_feature.show();
 		AdaBoost::updateWeights(train_samples_handler, best_feature);
 		strong_classifier.addFeature(best_feature);
 		
@@ -89,7 +91,7 @@ void AdaBoost::generateFeatures(int height, int width)
 							ftr.set_feature_type(static_cast<FeatureType>(ftrType));
 							v_features_.push_back(ftr);
 
-							ftr.set_inverse_parity(true);
+							ftr.set_inverse_parity(1);
 							v_features_.push_back(ftr);
 						}
 					}
@@ -104,18 +106,54 @@ void AdaBoost::searchFeature(const SamplesHandler& train_samples_handler,
 {
 	int num_features = static_cast<int>(v_features_.size());
 	int num_samples = train_samples_handler.get_amount();
-	int index = 0;
+    int second_pixel_change_period = 10 * 
+        (train_samples_handler.get_height() * train_samples_handler.get_width() - 1);
+	int first_pixel_value;
+	int second_pixel_value;
 
-	for (int i = 0; i < num_features; i++)
+	for (int i = 0; i < num_samples; i++)
+	{
+        const Image* image = &train_samples_handler[i].get_image();
+        int label = train_samples_handler[i].get_label();
+        for (int j = 0; j < num_features; j += 2)
+        {
+            // Because 10 features have same pixels
+            if (j % 10 == 0)
+                first_pixel_value =
+                    static_cast<int>(image->get_pixel_value(v_features_[j].get_first_pixel()));
+
+            if (j % second_pixel_change_period == 0)
+                second_pixel_value =
+                    static_cast<int>(image->get_pixel_value(v_features_[j].get_second_pixel()));
+
+            int answer = v_features_[j].computeFeature(first_pixel_value, second_pixel_value);
+
+            if (answer != label)
+            {
+                if (!v_features_[j].is_taken())
+                    v_features_[j].addToError(train_samples_handler[i].get_weight());
+            }
+            else
+            {
+                if (!v_features_[j + 1].is_taken())
+                    v_features_[j + 1].addToError(train_samples_handler[i].get_weight());
+            }
+        }
+	}
+
+    int index = 0;
+    for (int i = 0; i < num_features; i++)
 	{
 		if (!v_features_[i].is_taken())
 		{
-			v_features_[i].computeError(train_samples_handler);
-			if (v_features_[i] < best_feature)
-			{
-				best_feature = v_features_[i];
-				index = i;
-			}
+            if (v_features_[i] < best_feature)
+            {
+                best_feature = v_features_[i];
+                index = i;
+            }
 		}
+        v_features_[i].set_error(0);
 	}
+    v_features_[index].took();
+    best_feature.computeBetaAndLogBeta(); 
 }

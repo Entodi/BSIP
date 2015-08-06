@@ -7,6 +7,9 @@
 class StrongClassifier
 {
 public:
+    StrongClassifier() : v_best_features_(std::vector<Feature>()), 
+        threshold_(0.0), model_filename_("") {};
+
 	void	addFeature(Feature& ftr);
 	int		predict(const Sample& smpl);
 	double	evaluateAccuracy(const SamplesHandler& test_samples_handler);
