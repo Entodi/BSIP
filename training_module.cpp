@@ -141,7 +141,7 @@ bool TrainingModule::splitData(double percent_train)
 {
 	int sample_amount = samples_handler_.get_amount();
 	int train_samples_amount = 
-		static_cast<int>(rint(static_cast<double>(sample_amount) * percent_train));
+		static_cast<int>(ceil(static_cast<double>(sample_amount) * percent_train));
 
 	if (config_.get_train_flag() == 1)
 	{
@@ -173,9 +173,9 @@ bool TrainingModule::splitDataBalanced(double percent_train)
 	int num_males = samples_handler_.get_males();
 
 	int num_females_to_train =
-		static_cast<int>(rint(static_cast<double>(num_females)* percent_train));
+		static_cast<int>(ceil(static_cast<double>(num_females)* percent_train));
 	int num_males_to_train =
-		static_cast<int>(rint(static_cast<double>(num_males)* percent_train));
+		static_cast<int>(ceil(static_cast<double>(num_males)* percent_train));
 
 	if (num_females_to_train > num_males_to_train)
 		num_females_to_train = num_males_to_train;

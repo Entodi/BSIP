@@ -176,7 +176,7 @@ bool AdaBoost::adaboostRandomPart(SamplesHandler& train_samples_handler,
 	train_samples_handler.initWeights();
 
 	generateFeatures(train_samples_handler.get_height(), train_samples_handler.get_width());
-	int num_features_to_select_from = static_cast<int>(rint(v_features_.size() 
+	int num_features_to_select_from = static_cast<int>(ceil(v_features_.size() 
 		* percent_classifiers));
 	srand(time(NULL));
 

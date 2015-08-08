@@ -29,12 +29,12 @@ static void showHelp()
 		"	Set flag to 1 if you want balanced train data (default - 0)\n"
 		"\n"
 		"Sample to train model:\n"
-		"  *.exe --train 1 --data_filename \"16samples00.vec\" --model_filename \"model.txt\" \n"
-		"    --percent_train 0.8 --num_classifiers 20 --save_period 10\n"
+		"*.exe --train 1 --data_filename \"16samples00.vec\" --model_filename \"model.txt\" \n"
+		"    --percent_trainset 0.8 --num_classifiers 20 --save_period 10\n"
 		"\n"
 		"Sample to evaluate accuracy of trained model:\n"
-		"  *.exe --data_filename \"16samples00.vec\" --model_filename \"model.txt\" \n"
-		"--percent_train 0.8\n";
+		"*.exe --data_filename \"16samples00.vec\" --model_filename \"model.txt\" \n"
+		"--percent_trainset 0.8\n";
 }
 
 int main(int argc, char *argv[])

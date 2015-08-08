@@ -30,6 +30,6 @@ private:
 	SamplesHandler test_samples_handler_;
 	StrongClassifier strong_classifier_;
 
-	TrainingModule(const TrainingModule&) = delete;
-	void operator = (const TrainingModule&) = delete;
+	TrainingModule(const TrainingModule&) {};
+	void operator = (const TrainingModule&) {};
 };

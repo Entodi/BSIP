@@ -33,6 +33,6 @@ private:
 	bool validateParameters();
 	void showParams();
 
-	Configuration(const Configuration&) = delete;
-	void operator = (const Configuration&) = delete;
+	Configuration(const Configuration&){};
+	void operator = (const Configuration&){};
 };
