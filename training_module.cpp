@@ -156,13 +156,47 @@ bool TrainingModule::splitData(double percent_train)
 
 bool TrainingModule::splitDataBalanced(double percent_train)
 {
+
 	int num_females = samples_handler_.get_females();
 	int num_males = samples_handler_.get_males();
 
-	int num_females_to_train = 
+	int num_females_to_train =
 		static_cast<int>(rint(static_cast<double>(num_females)* percent_train));
-	int num_males_to_trains = 
+	int num_males_to_train =
 		static_cast<int>(rint(static_cast<double>(num_males)* percent_train));
+
+	if (num_females_to_train > num_males_to_train)
+		num_females_to_train = num_males_to_train;
+	else
+		num_males_to_train = num_females_to_train;
+
+	int samples_amount = samples_handler_.get_amount();
+	for (int i = 0; i < samples_amount; i++)
+	{
+		if ((samples_handler_[i].get_label() == 1) && (num_males_to_train != 0))
+		{
+			if (train_samples_handler_.addSample(samples_handler_[i]) == false)
+				return false;
+			num_males_to_train--;
+		}
+		else if ((samples_handler_[i].get_label() == 0) && (num_females_to_train != 0))
+		{
+			if (train_samples_handler_.addSample(samples_handler_[i]) == false)
+				return false;
+			num_females_to_train--;
+		}
+		else
+		{
+			if (test_samples_handler_.addSample(samples_handler_[i]) == false)
+				return false;
+		}
+	}
+
+	std::cout << "Loaded " << samples_amount <<
+		" samples\n\ttrain samples:\t" << train_samples_handler_.get_amount() <<
+		"\n\ttest samples:\t" << test_samples_handler_.get_amount() <<
+		"\n\theight:\t" << train_samples_handler_.get_height() <<
+		"\n\twidth:\t" << train_samples_handler_.get_width() << '\n';
 
 	return true;
 }

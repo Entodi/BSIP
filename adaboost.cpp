@@ -15,20 +15,26 @@ bool AdaBoost::adaboost(SamplesHandler& train_samples_handler,
 	for (int t = 0; t < num_classifiers; t++)
 	{
 		Feature best_feature;
-        best_feature.addToError(2.0);
+
 		train_samples_handler.normalizeWeights();
+
 		searchFeature(train_samples_handler, best_feature);
-        best_feature.show();
+
+        if (best_feature.get_error() > 0.5)
+            break;
+
 		AdaBoost::updateWeights(train_samples_handler, best_feature);
 		strong_classifier.addFeature(best_feature);
-		
+		    
+		// Save and show current accuracy
 		if ((t != 0) && ((t + 1) % save_period == 0))
 		{
-			std::cout << "\nTrained " << t + 1 << " weak classifiers." <<
-				"\nAccuracy on train set:\t" << strong_classifier.evaluateAccuracy(train_samples_handler) << 
-				"\nAccuracy on test set:\t" << strong_classifier.evaluateAccuracy(test_samples_handler) << "\n";
 			if (strong_classifier.saveModel() == false)
 				return false;
+
+			std::cout << "Trained " << t + 1 << " weak classifiers." <<
+			    "\nAccuracy on train set:\t" << strong_classifier.evaluateAccuracy(train_samples_handler) <<
+			    "\nAccuracy on test set:\t" << strong_classifier.evaluateAccuracy(test_samples_handler) << "\n\n";
 		}
 	}
 
@@ -51,27 +57,10 @@ void AdaBoost::updateWeights(SamplesHandler& train_samples_handler, Feature& bes
 	}
 }
 
-void AdaBoost::backupWeights(const SamplesHandler& samples_handler)
-{
-	std::ofstream ofs;
-	ofs.open("weight_backup.txt", std::ofstream::out | std::ofstream::app);
-
-	int num_samples = samples_handler.get_amount();
-
-	for (int i = 0; i < num_samples; i++)
-	{
-		ofs << samples_handler[i].get_weight() << ' ';
-	}
-
-	ofs << '\n';
-	ofs.close();
-}
-
 void AdaBoost::generateFeatures(int height, int width)
 {
 	int memory_need = 2 * Feature::kNumFeaturesTypes * height * width * (height * width - 1);
 	v_features_.reserve(memory_need);
-	Feature ftr;
 
 	for (int r = 0; r < height; r++)
 	{
@@ -85,14 +74,19 @@ void AdaBoost::generateFeatures(int height, int width)
 					if (!((r == x) && (c == y)))
 					{
 						Pixel first_pixel(x, y);
-						ftr.set_pixels(first_pixel, second_pixel);
 						for (int ftrType = 0; ftrType < Feature::kNumFeaturesTypes; ftrType++)
 						{
+							Feature ftr;
+							ftr.set_pixels(first_pixel, second_pixel);
 							ftr.set_feature_type(static_cast<FeatureType>(ftrType));
 							v_features_.push_back(ftr);
 
-							ftr.set_inverse_parity(1);
-							v_features_.push_back(ftr);
+							// Inverse of ftr
+							Feature i_ftr;
+							i_ftr.set_pixels(first_pixel, second_pixel);
+							i_ftr.set_feature_type(static_cast<FeatureType>(ftrType));
+							i_ftr.set_inverse_parity(true);
+							v_features_.push_back(i_ftr);
 						}
 					}
 				}
@@ -111,36 +105,41 @@ void AdaBoost::searchFeature(const SamplesHandler& train_samples_handler,
 	int first_pixel_value;
 	int second_pixel_value;
 
+	// Compute error for every feature
 	for (int i = 0; i < num_samples; i++)
 	{
         const Image* image = &train_samples_handler[i].get_image();
         int label = train_samples_handler[i].get_label();
-        for (int j = 0; j < num_features; j += 2)
-        {
-            // Because 10 features have same pixels
-            if (j % 10 == 0)
-                first_pixel_value =
-                    static_cast<int>(image->get_pixel_value(v_features_[j].get_first_pixel()));
 
-            if (j % second_pixel_change_period == 0)
-                second_pixel_value =
-                    static_cast<int>(image->get_pixel_value(v_features_[j].get_second_pixel()));
+		// No need to compute inverse feature and they lying sequentially in the vector. 
+		// This why j's step 2.
+		for (int j = 0; j < num_features; j += 2)
+		{
+			// Because every 10 features have same first pixels
+			if (j % 10 == 0)
+				first_pixel_value =
+				static_cast<int>(image->get_pixel_value(v_features_[j].get_first_pixel()));
+			// Because every 'second_pixel_change_period' features have same second pixels
+			if (j % second_pixel_change_period == 0)
+				second_pixel_value =
+				static_cast<int>(image->get_pixel_value(v_features_[j].get_second_pixel()));
 
-            int answer = v_features_[j].computeFeature(first_pixel_value, second_pixel_value);
+			int answer = v_features_[j].computeFeature(first_pixel_value, second_pixel_value);
 
-            if (answer != label)
-            {
-                if (!v_features_[j].is_taken())
-                    v_features_[j].addToError(train_samples_handler[i].get_weight());
-            }
-            else
-            {
-                if (!v_features_[j + 1].is_taken())
-                    v_features_[j + 1].addToError(train_samples_handler[i].get_weight());
-            }
-        }
+			if (answer == label)
+			{
+				if (!v_features_[i].is_taken())
+					v_features_[j].subFromError(train_samples_handler[i].get_weight());
+			}
+			else
+			{
+				if (!v_features_[i+1].is_taken())
+					v_features_[j + 1].subFromError(train_samples_handler[i].get_weight());
+			}
+		}
 	}
 
+	// Finding best feature
     int index = 0;
     for (int i = 0; i < num_features; i++)
 	{
@@ -152,7 +151,7 @@ void AdaBoost::searchFeature(const SamplesHandler& train_samples_handler,
                 index = i;
             }
 		}
-        v_features_[i].set_error(0);
+        v_features_[i].set_error(1.0);
 	}
     v_features_[index].took();
     best_feature.computeBetaAndLogBeta(); 

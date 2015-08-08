@@ -23,7 +23,7 @@ public:
 		first_pixel_(Pixel()), 
 		second_pixel_(Pixel()), 
 		inverse_parity_(0), 
-		error_(0.0), 
+		error_(1.0), 
 		beta_(0), 
 		log_beta_(0), 
 		is_taken_flag_(false) {};
@@ -45,7 +45,7 @@ public:
 	void		took();
 	bool		is_taken() const;
 	
-    void        addToError(double weight);
+    void        subFromError(double weight);
 
     void        computeBetaAndLogBeta();
 	int			computeFeature(const Sample& smpl);

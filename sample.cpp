@@ -1,6 +1,7 @@
 #include "sample.h"
 #include <string>
 
+
 const Image& Sample::get_image() const
 {
 	return img_;

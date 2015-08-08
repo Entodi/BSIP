@@ -21,8 +21,5 @@ private:
 	void generateFeatures(int height, int width);
 	void searchFeature(const SamplesHandler& train_samples_handler, 
 		Feature& best_feature);
-
-	void backupWeights(const SamplesHandler& samples_handler);
-
 	std::vector<Feature> v_features_;
 };

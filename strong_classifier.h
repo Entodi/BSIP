@@ -12,7 +12,7 @@ public:
 
 	void	addFeature(Feature& ftr);
 	int		predict(const Sample& smpl);
-	double	evaluateAccuracy(const SamplesHandler& test_samples_handler);
+	double	evaluateAccuracy(const SamplesHandler& samples_handler);
 
 	void	set_threshold(double threshold);
 	double	get_threshold() const;
