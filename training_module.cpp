@@ -19,7 +19,7 @@ bool TrainingModule::init(int argc, char *argv[])
 		return false;
 	
 	std::cout << "Splitting data to train and test sets.\n";
-	if (config_.get_balanced_flag() == 1)
+	if (config_.get_balanced_flag() == true)
 	{
 		if (splitDataBalanced(config_.get_percent_train()) == false)
 			return false;

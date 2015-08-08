@@ -130,12 +130,12 @@ int Configuration::get_num_classifiers() const
 	return num_classifiers_;
 }
 
-int Configuration::get_balanced_flag() const
+bool Configuration::get_balanced_flag() const
 {
 	return balanced_flag_;
 }
 
-int Configuration::get_train_flag() const
+bool Configuration::get_train_flag() const
 {
 	return train_flag_;
 }

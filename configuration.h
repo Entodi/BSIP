@@ -15,8 +15,8 @@ public:
 	const std::string& get_model_filename() const;
 	double	get_percent_train()	const;
 	int		get_num_classifiers() const;
-	int		get_balanced_flag() const;
-	int		get_train_flag() const;
+	bool	get_balanced_flag() const;
+	bool	get_train_flag() const;
 	int		get_save_period() const;
 
 private:
@@ -24,8 +24,8 @@ private:
 	std::string model_filename_;
 	double 	percent_train_;
 	int 	num_classifiers_;
-	int		balanced_flag_;
-	int		train_flag_;
+	bool	balanced_flag_;
+	bool	train_flag_;
 	int		save_period_;
 
 	bool validateParameters();
