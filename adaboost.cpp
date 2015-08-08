@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 bool AdaBoost::adaboost(SamplesHandler& train_samples_handler,
 	const SamplesHandler& test_samples_handler,
@@ -24,17 +26,21 @@ bool AdaBoost::adaboost(SamplesHandler& train_samples_handler,
             break;
 
 		AdaBoost::updateWeights(train_samples_handler, best_feature);
+
 		strong_classifier.addFeature(best_feature);
-		    
-		// Save and show current accuracy
+		double train_accuracy = strong_classifier.evaluateAccuracy(train_samples_handler);
+		double test_accuracy = strong_classifier.evaluateAccuracy(test_samples_handler);
+		strong_classifier.addAccuracy(train_accuracy, test_accuracy);
+
+		std::cout << "\nTrained " << t + 1 << " weak classifiers." <<
+			"\nAccuracy on train set:\t" << train_accuracy <<
+			"\nAccuracy on test set:\t" << test_accuracy << '\n';
+		
+		// Save model
 		if ((t != 0) && ((t + 1) % save_period == 0))
 		{
 			if (strong_classifier.saveModel() == false)
 				return false;
-
-			std::cout << "Trained " << t + 1 << " weak classifiers." <<
-			    "\nAccuracy on train set:\t" << strong_classifier.evaluateAccuracy(train_samples_handler) <<
-			    "\nAccuracy on test set:\t" << strong_classifier.evaluateAccuracy(test_samples_handler) << "\n\n";
 		}
 	}
 
@@ -124,17 +130,18 @@ void AdaBoost::searchFeature(const SamplesHandler& train_samples_handler,
 				second_pixel_value =
 				static_cast<int>(image->get_pixel_value(v_features_[j].get_second_pixel()));
 
-			int answer = v_features_[j].computeFeature(first_pixel_value, second_pixel_value);
+			if ((!v_features_[j].is_taken()) && (!v_features_[j + 1].is_taken()))
+			{
+				int answer = v_features_[j].computeFeature(first_pixel_value, second_pixel_value);
 
-			if (answer == label)
-			{
-				if (!v_features_[j].is_taken())
+				if (answer == label)
+				{
 					v_features_[j].subFromError(train_samples_handler[i].get_weight());
-			}
-			else
-			{
-				if (!v_features_[j + 1].is_taken())
+				}
+				else
+				{
 					v_features_[j + 1].subFromError(train_samples_handler[i].get_weight());
+				}
 			}
 		}
 	}
@@ -155,4 +162,82 @@ void AdaBoost::searchFeature(const SamplesHandler& train_samples_handler,
 	}
     v_features_[index].took();
     best_feature.computeBetaAndLogBeta(); 
+}
+
+
+
+bool AdaBoost::adaboostRandomPart(SamplesHandler& train_samples_handler,
+	const SamplesHandler& test_samples_handler,
+	int num_classifiers,
+	StrongClassifier& strong_classifier,
+	double percent_classifiers,
+	int save_period)
+{
+	train_samples_handler.initWeights();
+
+	generateFeatures(train_samples_handler.get_height(), train_samples_handler.get_width());
+	int num_features_to_select_from = static_cast<int>(rint(v_features_.size() 
+		* percent_classifiers));
+	srand(time(NULL));
+
+	for (int t = 0; t < num_classifiers; t++)
+	{
+		Feature best_feature;
+
+		train_samples_handler.normalizeWeights();
+
+		searchFeatureRandomPart(train_samples_handler, best_feature, num_features_to_select_from);
+
+		if (best_feature.get_error() > 0.5)
+			break;
+
+		AdaBoost::updateWeights(train_samples_handler, best_feature);
+		strong_classifier.addFeature(best_feature);
+		double train_accuracy = strong_classifier.evaluateAccuracy(train_samples_handler);
+		double test_accuracy = strong_classifier.evaluateAccuracy(test_samples_handler);
+		strong_classifier.addAccuracy(train_accuracy, test_accuracy);
+
+		std::cout << "\nTrained " << t + 1 << " weak classifiers." <<
+			"\nAccuracy on train set:\t" << train_accuracy <<
+			"\nAccuracy on test set:\t" << test_accuracy << '\n';
+
+		// Save and show current accuracy
+		if ((t != 0) && ((t + 1) % save_period == 0))
+		{
+			if (strong_classifier.saveModel() == false)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+
+void AdaBoost::searchFeatureRandomPart(const SamplesHandler& train_samples_handler,
+	Feature& best_feature, int num_features_to_select_from)
+{
+	int take_index;
+	int num_features = static_cast<int>(v_features_.size());
+
+	for (int i = 0; i < num_features_to_select_from;)
+	{
+		int rnd_index = rand() % num_features;
+
+		if (v_features_[rnd_index].is_taken())
+			continue;
+		else
+		{
+			v_features_[rnd_index].computeError(train_samples_handler);
+
+			if (v_features_[rnd_index] < best_feature)
+			{
+				best_feature = v_features_[rnd_index];
+				take_index = rnd_index;
+			}
+
+			i++;
+		}
+	}
+
+	v_features_[take_index].took();
 }

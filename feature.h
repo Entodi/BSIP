@@ -47,6 +47,7 @@ public:
 	
     void        subFromError(double weight);
 
+	void		computeError(const SamplesHandler& samples_handler);	
     void        computeBetaAndLogBeta();
 	int			computeFeature(const Sample& smpl);
     int         computeFeature(int first_pixel_value, int second_pixel_value);

@@ -36,7 +36,8 @@ bool Configuration::load(int argc, char *argv[])
 		if (!(param(argv, k, "--train", train_flag_)
 			&& param(argv, k, "--data_filename", data_filename_)
 			&& param(argv, k, "--model_filename", model_filename_)
-			&& param(argv, k, "--percent_train", percent_train_)
+			&& param(argv, k, "--percent_trainset", percent_trainset_)
+			&& param(argv, k, "--percent_classifiers", percent_classifiers_)
 			&& param(argv, k, "--num_classifiers", num_classifiers_)
 			&& param(argv, k, "--save_period", save_period_)
 			&& param(argv, k, "--balanced", balanced_flag_)))
@@ -70,15 +71,21 @@ bool Configuration::validateParameters()
 		return false;
 	}
 
-	if (train_flag_ && ((percent_train_ > 1) || (percent_train_ < 0.5)))
+	if (train_flag_ && ((percent_trainset_ > 1) || (percent_trainset_ < 0.5)))
 	{
 		std::cout << "Bad percent to split data for train. Should be from 0.5 to 1.\n";
 		return false;
 	}
-	
-	if (train_flag_ && num_classifiers_ <= 0)
+
+	if (train_flag_ && ((percent_trainset_ > 1) || (percent_trainset_ < 0.01)))
 	{
-		std::cout << "Amount of classifiers should be at least 1.\n";
+		std::cout << "Bad percent of classifiers to train. Should be from 0.01 to 1.\n";
+		return false;
+	}
+	
+	if (train_flag_ && ((num_classifiers_ <= 0) || (num_classifiers_ > 1000)))
+	{
+		std::cout << "Amount of classifiers should be at least 1 and not more than 1000.\n";
 		return false;
 	}
 
@@ -103,7 +110,8 @@ void Configuration::showParams()
 		"\t--train  " << train_flag_ << '\n' <<
 		"\t--data_filename  " << data_filename_ << '\n' <<
 		"\t--model_filename  " << model_filename_ << '\n' <<
-		"\t--percent_train  " << percent_train_ << '\n' <<
+		"\t--percent_trainset  " << percent_trainset_ << '\n' <<
+		"\t--percent_classifiers  " << percent_classifiers_ << '\n' <<
 		"\t--num_classifiers  " << num_classifiers_ << '\n' <<
 		"\t--save_period  " << save_period_ << '\n' << 
 		"\t--balanced  " << balanced_flag_ << '\n';
@@ -119,9 +127,9 @@ const std::string& Configuration::get_model_filename() const
 	return model_filename_;
 }
 
-double Configuration::get_percent_train() const
+double Configuration::get_percent_trainset() const
 {
-	return percent_train_;
+	return percent_trainset_;
 }
 
 int Configuration::get_num_classifiers() const
@@ -142,4 +150,9 @@ bool Configuration::get_train_flag() const
 int Configuration::get_save_period() const
 {
 	return save_period_;
+}
+
+double Configuration::get_percent_classifiers() const
+{
+	return percent_classifiers_;
 }

@@ -195,6 +195,23 @@ inline int Feature::get_asnwer_pixel(int first_pixel_value,
 	return 0;
 }
 
+void Feature::computeError(const SamplesHandler& samples_handler)
+{
+	double sum = 0;
+	int samples_amount = samples_handler.get_amount();
+	for (int i = 0; i < samples_amount; i++)
+	{
+		const Sample* sample = &samples_handler[i];
+		int answer = computeFeature(*sample);
+		if (answer != sample->get_label())
+			sum += sample->get_weight();
+	}
+
+	error_ = sum;
+	beta_ = error_ / (1 - error_);
+	log_beta_ = log(1.0 / beta_);
+}
+
 void Feature::computeBetaAndLogBeta()
 {
     beta_ = error_ / (1 - error_);

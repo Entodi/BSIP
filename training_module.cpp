@@ -21,18 +21,19 @@ bool TrainingModule::init(int argc, char *argv[])
 	std::cout << "Splitting data to train and test sets.\n";
 	if (config_.get_balanced_flag() == true)
 	{
-		if (splitDataBalanced(config_.get_percent_train()) == false)
+		if (splitDataBalanced(config_.get_percent_trainset()) == false)
 			return false;
 	}
 	else
 	{
-		if (splitData(config_.get_percent_train()) == false)
+		if (splitData(config_.get_percent_trainset()) == false)
 			return false;
 	}
 
 	samples_handler_.clear();
 
 	strong_classifier_.set_model_filename(config_.get_model_filename());
+	strong_classifier_.reserveMemory(config_.get_num_classifiers());
 
 	return true;
 }
@@ -61,9 +62,20 @@ bool TrainingModule::run()
 bool TrainingModule::trainModel()
 {
 	AdaBoost ab;
-	if (ab.adaboost(train_samples_handler_, test_samples_handler_, 
-		config_.get_num_classifiers(), strong_classifier_, config_.get_save_period()) == false)
-		return false;
+	if (config_.get_percent_classifiers() == 1)
+	{
+		if (ab.adaboost(train_samples_handler_, test_samples_handler_,
+				config_.get_num_classifiers(), strong_classifier_, 
+				config_.get_save_period()) == false)
+			return false;
+	}
+	else
+	{
+		ab.adaboostRandomPart(train_samples_handler_, test_samples_handler_,
+			config_.get_num_classifiers(), strong_classifier_, 
+			config_.get_percent_classifiers(),
+			config_.get_save_period());
+	}
 	return true;
 }
 

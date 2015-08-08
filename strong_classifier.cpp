@@ -99,9 +99,12 @@ bool StrongClassifier::saveModel()
 		double log_beta = v_best_features_[i].get_log_beta();
 		int ftr_type = static_cast<int>(v_best_features_[i].get_feature_type());
 		int inv_parity = v_best_features_[i].get_inverse_parity();
+		double train_accuracy = v_train_accuracy_[i];
+		double test_accuracy = v_test_accuracy_[i];
 
 		ofs << first_pxl.row_ << ' ' << first_pxl.col_ << ' ' << second_pxl.row_ << ' ' <<
-			second_pxl.col_ << ' ' << log_beta << ' ' << ftr_type << ' ' << inv_parity << '\n';
+			second_pxl.col_ << ' ' << log_beta << ' ' << ftr_type << ' ' << inv_parity << 
+			' ' << train_accuracy << ' ' << test_accuracy << '\n';
 	}
 
 	ofs.close();
@@ -129,23 +132,27 @@ bool StrongClassifier::loadModel()
 	int amount;
 	ifs >> amount;
 
-	Pixel first_pxl;
-	Pixel second_pxl;
-	double log_beta;
-	int ftr_type;
-	int inv_parity;
-
 	for (int i = 0; i < amount; i++)
 	{
 		Feature ftr;
+		Pixel first_pxl;
+		Pixel second_pxl;
+		double log_beta;
+		int ftr_type;
+		int inv_parity;
+		double train_accuracy;
+		double test_accuracy;
 		ifs >> first_pxl.row_ >> first_pxl.col_ >> second_pxl.row_ >>
-			second_pxl.col_ >> log_beta >> ftr_type >> inv_parity;
+			second_pxl.col_ >> log_beta >> ftr_type >> inv_parity >>
+			train_accuracy >> test_accuracy;
 		ftr.set_feature_type(static_cast<FeatureType>(ftr_type));
 		ftr.set_pixels(first_pxl, second_pxl);
 		ftr.set_log_beta(log_beta);
 		ftr.set_inverse_parity(inv_parity);
 
 		addFeature(ftr);
+		v_train_accuracy_.push_back(train_accuracy);
+		v_test_accuracy_.push_back(test_accuracy);
 	}
 
 	ifs.close();
@@ -164,3 +171,15 @@ const Feature& StrongClassifier::operator[](int id) const
 	return v_best_features_[id];
 }
 
+void StrongClassifier::addAccuracy(double train_accuracy, double test_accuracy)
+{
+	v_train_accuracy_.push_back(train_accuracy);
+	v_test_accuracy_.push_back(test_accuracy);
+}
+
+void StrongClassifier::reserveMemory(int num_classifiers)
+{
+	v_best_features_.reserve(num_classifiers);
+	v_train_accuracy_.reserve(num_classifiers);
+	v_test_accuracy_.reserve(num_classifiers);
+}
