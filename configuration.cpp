@@ -28,7 +28,6 @@ template<class T> bool param(char *argv[], int k,
 	return true;
 }
 
-
 bool Configuration::load(int argc, char *argv[])
 {
 	std::cout << "Reading configurations params...\n";
@@ -102,11 +101,11 @@ void Configuration::showParams()
 {
 	std::cout << 
 		"\t--train  " << train_flag_ << '\n' <<
-		"\t--datafilename  " << data_filename_ << '\n' <<
-		"\t--modelfilename  " << model_filename_ << '\n' <<
-		"\t--percenttrain  " << percent_train_ << '\n' <<
-		"\t--numclassifiers  " << num_classifiers_ << '\n' <<
-		"\t--saveperiod  " << save_period_ << '\n' << 
+		"\t--data_filename  " << data_filename_ << '\n' <<
+		"\t--model_filename  " << model_filename_ << '\n' <<
+		"\t--percent_train  " << percent_train_ << '\n' <<
+		"\t--num_classifiers  " << num_classifiers_ << '\n' <<
+		"\t--save_period  " << save_period_ << '\n' << 
 		"\t--balanced  " << balanced_flag_ << '\n';
 }
 
