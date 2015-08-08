@@ -128,12 +128,12 @@ void AdaBoost::searchFeature(const SamplesHandler& train_samples_handler,
 
 			if (answer == label)
 			{
-				if (!v_features_[i].is_taken())
+				if (!v_features_[j].is_taken())
 					v_features_[j].subFromError(train_samples_handler[i].get_weight());
 			}
 			else
 			{
-				if (!v_features_[i+1].is_taken())
+				if (!v_features_[j + 1].is_taken())
 					v_features_[j + 1].subFromError(train_samples_handler[i].get_weight());
 			}
 		}
