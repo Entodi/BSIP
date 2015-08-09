@@ -6,7 +6,7 @@ class Configuration
 {
 public:
 	Configuration() : data_filename_(""), model_filename_(""),
-		percent_trainset_(0.0), percent_classifiers_(1.0), num_classifiers_(0), balanced_flag_(0), 
+		percent_trainset_(0.0), percent_classifiers_(1), num_classifiers_(0), balanced_flag_(0), 
 		train_flag_(0), save_period_(100) {};
 
 	bool load(int argc, char *argv[]);

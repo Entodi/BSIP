@@ -279,15 +279,8 @@ bool TrainingModule::reevaluateModel()
 		str_clssfr.addAccuracy(train_accuracy, test_accuracy);
 	}
 
-	std::stringstream model_filename;
-	model_filename << "model_" << 
-		test_samples_handler_.get_height() << 'x' <<
-		test_samples_handler_.get_width() << '_' <<
-		strong_classifier_.get_amount() << '_' << 
-		config_.get_percent_trainset() << '_' << 
-		config_.get_balanced_flag() << '_' << 
-		config_.get_percent_classifiers() << ".bin";
-	str_clssfr.set_model_filename(model_filename.str());
+	std::string model_filename = "reeval_" + config_.get_model_filename();
+	str_clssfr.set_model_filename(model_filename);
 	if (str_clssfr.saveModel() == false)
 		return false;
 
