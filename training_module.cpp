@@ -54,6 +54,7 @@ bool TrainingModule::run()
 		std::cout << "Evaluating Accuracy...\n";
 		loadModel(config_.get_model_filename());
 		evaluateAccuracyOnTestSet();
+		reevaluateAccuracySequentially();
 	}
 
 	return true;
@@ -141,15 +142,12 @@ bool TrainingModule::splitData(double percent_train)
 {
 	int sample_amount = samples_handler_.get_amount();
 	int train_samples_amount = 
-		static_cast<int>(ceil(static_cast<double>(sample_amount) * percent_train));
+		static_cast<int>(floor(static_cast<double>(sample_amount) * percent_train));
 
-	if (config_.get_train_flag() == 1)
-	{
-		train_samples_handler_.reserveMemoryForSamples(train_samples_amount);
-		for (int i = 0; i < train_samples_amount; i++)
-			if (train_samples_handler_.addSample(samples_handler_[i]) == false)
-				return false;
-	}
+	train_samples_handler_.reserveMemoryForSamples(train_samples_amount);
+	for (int i = 0; i < train_samples_amount; i++)
+		if (train_samples_handler_.addSample(samples_handler_[i]) == false)
+			return false;
 
 	int test_samples_amount = sample_amount - train_samples_amount;
 	test_samples_handler_.reserveMemoryForSamples(test_samples_amount);
@@ -173,9 +171,9 @@ bool TrainingModule::splitDataBalanced(double percent_train)
 	int num_males = samples_handler_.get_males();
 
 	int num_females_to_train =
-		static_cast<int>(ceil(static_cast<double>(num_females)* percent_train));
+		static_cast<int>(floor(static_cast<double>(num_females)* percent_train));
 	int num_males_to_train =
-		static_cast<int>(ceil(static_cast<double>(num_males)* percent_train));
+		static_cast<int>(floor(static_cast<double>(num_males)* percent_train));
 
 	if (num_females_to_train > num_males_to_train)
 		num_females_to_train = num_males_to_train;
@@ -251,4 +249,25 @@ double TrainingModule::evaluateAccuracyOnTestSet()
 	double accuracy = strong_classifier_.evaluateAccuracy(test_samples_handler_);
 	std::cout << "\nOverall accuracy: " << accuracy << '\n';
 	return accuracy;
+}
+
+void TrainingModule::reevaluateAccuracySequentially()
+{
+	int features_amount = strong_classifier_.get_amount();
+
+	StrongClassifier str_clssfr;
+	for (int i = 0; i < features_amount; i++)
+	{
+		Feature ftr(strong_classifier_[i]);
+		str_clssfr.addFeature(ftr);
+		double train_accuracy = train_samples_handler_.get_amount() != 0 ? 
+			str_clssfr.evaluateAccuracy(train_samples_handler_) : -1.0;
+		double test_accuracy = test_samples_handler_.get_amount() != 0 ? 
+			str_clssfr.evaluateAccuracy(test_samples_handler_) : -1.0;
+		str_clssfr.addAccuracy(train_accuracy, test_accuracy);
+	}
+
+	std::string model_filename = "reeval_" + config_.get_model_filename();
+	str_clssfr.set_model_filename(model_filename);
+	str_clssfr.saveModel();
 }

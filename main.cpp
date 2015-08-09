@@ -19,7 +19,7 @@ static void showHelp()
 		"	Can be used for evaluating accuracy on (100% - percent_train) data\n"
 		"	(default - 0.0 (0 %)\n"
 		"  --percent_classifiers <percent>\n"
-		"	Percent of classifiers to observe in every iterations, Should be [0.01, 1].\n"
+		"	Percent of classifiers to observe in every iterations, should be from 0.01 to 1.\n"
 		"	(default - 1.0 (100%)\n"
 		"  --num_classifiers <amount> \n"
 		"	Amount of classifiers to train. Should be from 1 to 1000.\n"
