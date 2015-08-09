@@ -39,6 +39,8 @@ int StrongClassifier::predict(const Sample& smpl)
 
 double StrongClassifier::evaluateAccuracy(const SamplesHandler& samples_handler)
 {
+	// Balanced accuracy
+	// https://en.wikipedia.org/wiki/Accuracy_and_precision
 	int num_samples = samples_handler.get_amount();
     int num_true_positive = 0;
     int num_true_negative = 0;
