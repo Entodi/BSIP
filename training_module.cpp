@@ -279,7 +279,7 @@ bool TrainingModule::reevaluateModel()
 		str_clssfr.addAccuracy(train_accuracy, test_accuracy);
 	}
 
-	std::string model_filename = "reeval_" + config_.get_model_filename();
+	std::string model_filename = config_.get_model_filename();
 	str_clssfr.set_model_filename(model_filename);
 	if (str_clssfr.saveModel() == false)
 		return false;
