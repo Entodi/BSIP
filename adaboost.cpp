@@ -27,7 +27,8 @@ bool AdaBoost::adaboost(SamplesHandler& train_samples_handler,
 
 		AdaBoost::updateWeights(train_samples_handler, best_feature);
 
-		strong_classifier.addFeature(best_feature);
+		if (strong_classifier.addFeature(best_feature) == false)
+			return false;
 		double train_accuracy = strong_classifier.evaluateAccuracy(train_samples_handler);
 		double test_accuracy = strong_classifier.evaluateAccuracy(test_samples_handler);
 		strong_classifier.addAccuracy(train_accuracy, test_accuracy);
@@ -192,7 +193,8 @@ bool AdaBoost::adaboostRandomPart(SamplesHandler& train_samples_handler,
 			break;
 
 		AdaBoost::updateWeights(train_samples_handler, best_feature);
-		strong_classifier.addFeature(best_feature);
+		if (strong_classifier.addFeature(best_feature) == false)
+			return false;
 		double train_accuracy = strong_classifier.evaluateAccuracy(train_samples_handler);
 		double test_accuracy = strong_classifier.evaluateAccuracy(test_samples_handler);
 		strong_classifier.addAccuracy(train_accuracy, test_accuracy);

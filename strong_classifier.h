@@ -13,7 +13,7 @@ public:
         threshold_(0.0), model_filename_("") {};
 
 	void	reserveMemory(int num_classifiers);
-	void	addFeature(Feature& ftr);
+	bool	addFeature(Feature& ftr);
 	void	addAccuracy(double train_accuracy, double test_accuracy);
 	int		predict(const Sample& smpl);
 	double	evaluateAccuracy(const SamplesHandler& samples_handler);

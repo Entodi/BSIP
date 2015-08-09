@@ -61,9 +61,11 @@ bool TrainingModule::run()
 	else
 	{
 		std::cout << "Evaluating Accuracy...\n";
-		loadModel(config_.get_model_filename());
+		if (loadModel(config_.get_model_filename()) == false)
+			return false;
 		evaluateAccuracyOnTestSet();
-		reevaluateModel();
+		if (reevaluateModel() == false)
+			return false;
 	}
 
 	return true;
@@ -260,7 +262,7 @@ double TrainingModule::evaluateAccuracyOnTestSet()
 	return accuracy;
 }
 
-void TrainingModule::reevaluateModel()
+bool TrainingModule::reevaluateModel()
 {
 	int features_amount = strong_classifier_.get_amount();
 
@@ -268,14 +270,14 @@ void TrainingModule::reevaluateModel()
 	for (int i = 0; i < features_amount; i++)
 	{
 		Feature ftr(strong_classifier_[i]);
-		str_clssfr.addFeature(ftr);
+		if (str_clssfr.addFeature(ftr) == false)
+			return false;
 		double train_accuracy = train_samples_handler_.get_amount() != 0 ? 
 			str_clssfr.evaluateAccuracy(train_samples_handler_) : -1.0;
 		double test_accuracy = test_samples_handler_.get_amount() != 0 ? 
 			str_clssfr.evaluateAccuracy(test_samples_handler_) : -1.0;
 		str_clssfr.addAccuracy(train_accuracy, test_accuracy);
 	}
-
 
 	std::stringstream model_filename;
 	model_filename << "model_" << 
@@ -286,5 +288,8 @@ void TrainingModule::reevaluateModel()
 		config_.get_balanced_flag() << '_' << 
 		config_.get_percent_classifiers() << ".bin";
 	str_clssfr.set_model_filename(model_filename.str());
-	str_clssfr.saveModel();
+	if (str_clssfr.saveModel() == false)
+		return false;
+
+	return true;
 }

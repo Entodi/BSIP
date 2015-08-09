@@ -3,10 +3,27 @@
 #include <fstream>
 #include <iostream>
 
-void StrongClassifier::addFeature(Feature& ftr)
+template<class T> bool readVariable(std::ifstream* ifs, T& variable)
 {
+	ifs->read((char *)&variable, sizeof(T));
+	if (ifs->gcount() != sizeof(T))
+	{
+		std::cout << "Error: reading parameter when loading model.\n";
+		return false;
+	}
+	return true;
+}
+
+bool StrongClassifier::addFeature(Feature& ftr)
+{
+	if (ftr.get_feature_type() == no_type)
+	{
+		std::cout << "Feature has no type.\n";
+		return false;
+	}
 	v_best_features_.push_back(ftr);
 	threshold_ = (threshold_ * 2.0 + ftr.get_log_beta()) / 2.0;
+	return true;
 }
 
 int StrongClassifier::predict(const Sample& smpl)
@@ -137,6 +154,11 @@ bool StrongClassifier::loadModel()
 
 	int amount;
 	ifs.read((char *) &amount, sizeof(int));
+	if (ifs.gcount() != sizeof(int))
+	{
+		std::cout << "Error: loading model. File doens't match.\n";
+		return false;
+	}
 
 	for (int i = 0; i < amount; i++)
 	{
@@ -149,22 +171,23 @@ bool StrongClassifier::loadModel()
 		double train_accuracy;
 		double test_accuracy;
 		
-		ifs.read((char *) &first_pxl.row_, sizeof(int));
-		ifs.read((char *) &first_pxl.col_, sizeof(int));
-		ifs.read((char	*) &second_pxl.row_, sizeof(int));
-		ifs.read((char *) &second_pxl.col_, sizeof(int));
-		ifs.read((char *) &log_beta, sizeof(double));
-		ifs.read((char	*) &ftr_type, sizeof(int));
-		ifs.read((char *) &inv_parity, sizeof(int));
-		ifs.read((char *) &train_accuracy, sizeof(double));
-		ifs.read((char *) &test_accuracy, sizeof(double));
+		if (readVariable(&ifs, first_pxl.row_) == false) return false;
+		if (readVariable(&ifs, first_pxl.col_) == false) return false;
+		if (readVariable(&ifs, second_pxl.row_) == false) return false;
+		if (readVariable(&ifs, second_pxl.col_) == false) return false;
+		if (readVariable(&ifs, log_beta) == false) return false;
+		if (readVariable(&ifs, ftr_type) == false) return false;
+		if (readVariable(&ifs, inv_parity) == false) return false;
+		if (readVariable(&ifs, train_accuracy) == false) return false;
+		if (readVariable(&ifs, test_accuracy) == false) return false;
 
 		ftr.set_feature_type(static_cast<FeatureType>(ftr_type));
 		ftr.set_pixels(first_pxl, second_pxl);
 		ftr.set_log_beta(log_beta);
 		ftr.set_inverse_parity(inv_parity);
 
-		addFeature(ftr);
+		if (addFeature(ftr) == false)
+			return false;
 		v_train_accuracy_.push_back(train_accuracy);
 		v_test_accuracy_.push_back(test_accuracy);
 	}
