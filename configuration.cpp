@@ -65,9 +65,9 @@ bool Configuration::validateParameters()
 		return false;
 	}
 
-	if (model_filename_.empty())
+	if (!train_flag_ && model_filename_.empty())
 	{
-		std::cout << "Filename for saving model is not specified.\n";
+		std::cout << "Filename of trained model to evaluate accuracy  is not specified.\n";
 		return false;
 	}
 

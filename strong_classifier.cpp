@@ -82,7 +82,7 @@ bool StrongClassifier::saveModel()
 	}
 
 	std::ofstream ofs;
-	ofs.open(model_filename_, std::ofstream::out);
+	ofs.open(model_filename_, std::ofstream::out | std::fstream::binary);
 	if (!ofs.is_open())
 	{
 		std::cout << "Error: opening file " << model_filename_ << ".\n";
@@ -90,7 +90,7 @@ bool StrongClassifier::saveModel()
 	}
 
 	int amount = static_cast<int>(v_best_features_.size());
-	ofs << amount << '\n';
+	ofs.write((char *) &amount, sizeof(int));
 
 	for (int i = 0; i < amount; i++)
 	{
@@ -102,9 +102,15 @@ bool StrongClassifier::saveModel()
 		double train_accuracy = v_train_accuracy_[i];
 		double test_accuracy = v_test_accuracy_[i];
 
-		ofs << first_pxl.row_ << ' ' << first_pxl.col_ << ' ' << second_pxl.row_ << ' ' <<
-			second_pxl.col_ << ' ' << log_beta << ' ' << ftr_type << ' ' << inv_parity << 
-			' ' << train_accuracy << ' ' << test_accuracy << '\n';
+		ofs.write((char *) &first_pxl.row_, sizeof(int));
+		ofs.write((char *) &first_pxl.col_, sizeof(int));
+		ofs.write((char	*) &second_pxl.row_, sizeof(int));
+		ofs.write((char *) &second_pxl.col_, sizeof(int));
+		ofs.write((char *) &log_beta, sizeof(double));
+		ofs.write((char	*) &ftr_type, sizeof(int));
+		ofs.write((char *) &inv_parity, sizeof(int));
+		ofs.write((char *) &train_accuracy, sizeof(double));
+		ofs.write((char *) &test_accuracy, sizeof(double));
 	}
 
 	ofs.close();
@@ -122,7 +128,7 @@ bool StrongClassifier::loadModel()
 	}
 
 	std::ifstream ifs;
-	ifs.open(model_filename_, std::ofstream::in);
+	ifs.open(model_filename_, std::ifstream::in | std::ifstream::binary);
 	if (!ifs.is_open())
 	{
 		std::cout << "Error: opening file " << model_filename_ << '.';
@@ -130,7 +136,7 @@ bool StrongClassifier::loadModel()
 	}
 
 	int amount;
-	ifs >> amount;
+	ifs.read((char *) &amount, sizeof(int));
 
 	for (int i = 0; i < amount; i++)
 	{
@@ -142,9 +148,17 @@ bool StrongClassifier::loadModel()
 		int inv_parity;
 		double train_accuracy;
 		double test_accuracy;
-		ifs >> first_pxl.row_ >> first_pxl.col_ >> second_pxl.row_ >>
-			second_pxl.col_ >> log_beta >> ftr_type >> inv_parity >>
-			train_accuracy >> test_accuracy;
+		
+		ifs.read((char *) &first_pxl.row_, sizeof(int));
+		ifs.read((char *) &first_pxl.col_, sizeof(int));
+		ifs.read((char	*) &second_pxl.row_, sizeof(int));
+		ifs.read((char *) &second_pxl.col_, sizeof(int));
+		ifs.read((char *) &log_beta, sizeof(double));
+		ifs.read((char	*) &ftr_type, sizeof(int));
+		ifs.read((char *) &inv_parity, sizeof(int));
+		ifs.read((char *) &train_accuracy, sizeof(double));
+		ifs.read((char *) &test_accuracy, sizeof(double));
+
 		ftr.set_feature_type(static_cast<FeatureType>(ftr_type));
 		ftr.set_pixels(first_pxl, second_pxl);
 		ftr.set_log_beta(log_beta);

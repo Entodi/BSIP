@@ -4,6 +4,7 @@
 #include <iostream>
 #include <assert.h>
 #include <math.h>
+#include <sstream>
 
 #include "adaboost.h"
 
@@ -32,7 +33,15 @@ bool TrainingModule::init(int argc, char *argv[])
 
 	samples_handler_.clear();
 
-	strong_classifier_.set_model_filename(config_.get_model_filename());
+	std::stringstream model_filename;
+	model_filename << "model_" << 
+		train_samples_handler_.get_height() << 'x' <<
+		train_samples_handler_.get_width() << '_' <<
+		config_.get_num_classifiers() << '_' << 
+		config_.get_percent_trainset() << '_' << 
+		config_.get_balanced_flag() << '_' << 
+		config_.get_percent_classifiers() << ".bin";
+	strong_classifier_.set_model_filename(model_filename.str());
 	strong_classifier_.reserveMemory(config_.get_num_classifiers());
 
 	return true;
@@ -54,7 +63,7 @@ bool TrainingModule::run()
 		std::cout << "Evaluating Accuracy...\n";
 		loadModel(config_.get_model_filename());
 		evaluateAccuracyOnTestSet();
-		reevaluateAccuracySequentially();
+		reevaluateModel();
 	}
 
 	return true;
@@ -251,7 +260,7 @@ double TrainingModule::evaluateAccuracyOnTestSet()
 	return accuracy;
 }
 
-void TrainingModule::reevaluateAccuracySequentially()
+void TrainingModule::reevaluateModel()
 {
 	int features_amount = strong_classifier_.get_amount();
 
@@ -267,7 +276,15 @@ void TrainingModule::reevaluateAccuracySequentially()
 		str_clssfr.addAccuracy(train_accuracy, test_accuracy);
 	}
 
-	std::string model_filename = "reeval_" + config_.get_model_filename();
-	str_clssfr.set_model_filename(model_filename);
+
+	std::stringstream model_filename;
+	model_filename << "model_" << 
+		test_samples_handler_.get_height() << 'x' <<
+		test_samples_handler_.get_width() << '_' <<
+		strong_classifier_.get_amount() << '_' << 
+		config_.get_percent_trainset() << '_' << 
+		config_.get_balanced_flag() << '_' << 
+		config_.get_percent_classifiers() << ".bin";
+	str_clssfr.set_model_filename(model_filename.str());
 	str_clssfr.saveModel();
 }
