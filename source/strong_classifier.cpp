@@ -66,8 +66,8 @@ double StrongClassifier::evaluateAccuracy(const SamplesHandler& samples_handler)
 	        }
 	}
 
-    double accuracy = (0.5 * num_true_positive) / (num_true_positive + num_false_negative) +
-        (0.5 * num_true_negative) / (num_true_negative + num_false_positive);
+	double accuracy = (0.5 * num_true_positive) / (num_true_positive + num_false_negative) + 
+		(0.5 * num_true_negative) / (num_true_negative + num_false_positive);
 
 	return accuracy;
 }
