@@ -42,28 +42,28 @@ double StrongClassifier::evaluateAccuracy(const SamplesHandler& samples_handler)
 	// Balanced accuracy
 	// https://en.wikipedia.org/wiki/Accuracy_and_precision
 	int num_samples = samples_handler.get_amount();
-    int num_true_positive = 0;
-    int num_true_negative = 0;
-    int num_false_positive = 0;
-    int num_false_negative = 0;
+	int num_true_positive = 0;
+	int num_true_negative = 0;
+	int num_false_positive = 0;
+	int num_false_negative = 0;
 
 	for (int i = 0; i < num_samples; i++)
 	{
 		int asnwer = predict(samples_handler[i]);
-        if (samples_handler[i].get_label() == asnwer)
-        {
-            if (samples_handler[i].get_label() == 1)
-                num_true_positive++;
-            else
-                num_true_negative++;
-        }
-        else
-        {
-            if (samples_handler[i].get_label() == 1)
-                num_false_positive++;
-            else
-                num_false_negative++;
-        }
+	        if (samples_handler[i].get_label() == asnwer)
+	        {
+	            if (samples_handler[i].get_label() == 1)
+	                num_true_positive++;
+	            else
+	                num_true_negative++;
+	        }
+	        else
+	        {
+	            if (samples_handler[i].get_label() == 1)
+	                num_false_positive++;
+	            else
+	                num_false_negative++;
+	        }
 	}
 
     double accuracy = (0.5 * num_true_positive) / (num_true_positive + num_false_negative) +
