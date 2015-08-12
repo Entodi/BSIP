@@ -64,8 +64,6 @@ bool TrainingModule::run()
 		if (loadModel(config_.get_model_filename()) == false)
 			return false;
 		evaluateAccuracyOnTestSet();
-		if (reevaluateModel() == false)
-			return false;
 	}
 
 	return true;
@@ -94,7 +92,7 @@ bool TrainingModule::trainModel()
 bool TrainingModule::initData(const std::string& data_filename)
 {
 	std::ifstream ifs;
-	ifs.open(data_filename, std::ifstream::in | std::ifstream::binary);
+	ifs.open(data_filename.c_str(), std::ifstream::in | std::ifstream::binary);
 	if (!ifs.is_open())
 	{
 		std::cout << "Error: opening file " << data_filename << '.';
@@ -260,29 +258,4 @@ double TrainingModule::evaluateAccuracyOnTestSet()
 	double accuracy = strong_classifier_.evaluateAccuracy(test_samples_handler_);
 	std::cout << "\nOverall accuracy: " << accuracy << '\n';
 	return accuracy;
-}
-
-bool TrainingModule::reevaluateModel()
-{
-	int features_amount = strong_classifier_.get_amount();
-
-	StrongClassifier str_clssfr;
-	for (int i = 0; i < features_amount; i++)
-	{
-		Feature ftr(strong_classifier_[i]);
-		if (str_clssfr.addFeature(ftr) == false)
-			return false;
-		double train_accuracy = train_samples_handler_.get_amount() != 0 ? 
-			str_clssfr.evaluateAccuracy(train_samples_handler_) : -1.0;
-		double test_accuracy = test_samples_handler_.get_amount() != 0 ? 
-			str_clssfr.evaluateAccuracy(test_samples_handler_) : -1.0;
-		str_clssfr.addAccuracy(train_accuracy, test_accuracy);
-	}
-
-	std::string model_filename = config_.get_model_filename();
-	str_clssfr.set_model_filename(model_filename);
-	if (str_clssfr.saveModel() == false)
-		return false;
-
-	return true;
 }

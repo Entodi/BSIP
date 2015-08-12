@@ -29,7 +29,8 @@ void SamplesHandler::initWeights()
 	double femaleWeight = 0.5 / static_cast<double>(num_females_);
 	double maleWeight = 0.5 / static_cast<double>(num_males_);
 
-	for (int i = 0; i < v_samples_.size(); i++)
+	double samples_amount = static_cast<int>(v_samples_.size());
+	for (int i = 0; i < samples_amount; i++)
 	{
 		if (v_samples_[i].get_label() == 0)
 			v_samples_[i].set_weight(femaleWeight);
@@ -41,10 +42,11 @@ void SamplesHandler::initWeights()
 void SamplesHandler::normalizeWeights()
 {
 	double weightSum = 0;
-	for (int i = 0; i < v_samples_.size(); i++)
+	double samples_amount = static_cast<int>(v_samples_.size());
+	for (int i = 0; i < samples_amount; i++)
 		weightSum += v_samples_[i].get_weight();
 
-	for (int i = 0; i < v_samples_.size(); i++)
+	for (int i = 0; i < samples_amount; i++)
 		v_samples_[i].set_weight(v_samples_[i].get_weight() / weightSum);
 }
 

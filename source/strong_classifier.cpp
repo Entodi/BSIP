@@ -101,7 +101,7 @@ bool StrongClassifier::saveModel()
 	}
 
 	std::ofstream ofs;
-	ofs.open(model_filename_, std::ofstream::out | std::fstream::binary);
+	ofs.open(model_filename_.c_str(), std::ofstream::out | std::ofstream::binary);
 	if (!ofs.is_open())
 	{
 		std::cout << "Error: opening file " << model_filename_ << ".\n";
@@ -147,7 +147,7 @@ bool StrongClassifier::loadModel()
 	}
 
 	std::ifstream ifs;
-	ifs.open(model_filename_, std::ifstream::in | std::ifstream::binary);
+	ifs.open(model_filename_.c_str(), std::ifstream::in | std::ifstream::binary);
 	if (!ifs.is_open())
 	{
 		std::cout << "Error: opening file " << model_filename_ << '.';

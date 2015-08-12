@@ -7,7 +7,7 @@
 class SamplesHandler
 {
 public:
-	SamplesHandler() : num_males_(0), num_females_(0), 
+	SamplesHandler() : num_females_(0), num_males_(0), 
 		height_(0), width_(0), v_samples_(std::vector<Sample>()) {};
 	bool addSample(const Sample& smpl);
 	void initWeights();

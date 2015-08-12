@@ -4,6 +4,7 @@
 #include <fstream>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <math.h>
 
 bool AdaBoost::adaboost(SamplesHandler& train_samples_handler,
 	const SamplesHandler& test_samples_handler,

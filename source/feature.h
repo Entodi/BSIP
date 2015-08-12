@@ -62,7 +62,7 @@ private:
 	FeatureType ftr_type_;
 	Pixel first_pixel_;
 	Pixel second_pixel_;
-	int inverse_parity_;
+	int inverse_parity_; // for symmetry of features
 	double error_;
 	double beta_;
 	double log_beta_;

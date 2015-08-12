@@ -15,7 +15,6 @@ public:
 	bool	run();
 private:
 	bool	trainModel();
-	bool	reevaluateModel();
 	double	evaluateAccuracyOnTestSet();
 	bool	loadModel(const std::string& filename);
 	bool	saveModel(const std::string& filename);

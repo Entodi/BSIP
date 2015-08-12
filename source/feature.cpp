@@ -1,6 +1,7 @@
 #include "feature.h"
 
 #include <iostream>
+#include <math.h>
 
 bool Feature::operator<(const Feature& ftr) const
 {
