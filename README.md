@@ -1,13 +1,13 @@
 # Introduction
-It is implementation of training module in C++ of article Boosting Sex Identification Performance http://www.cs.cmu.edu/~har/iaai2005.pdf
+It is implementation of training module in C++ from article Boosting Sex Identification Performance http://www.cs.cmu.edu/~har/iaai2005.pdf
 
 # Datasets
-Dataset consists of images with 3 different sizes with face images of man and woman
+Datasets consist of images with 3 different sizes of man and woman face images.
 * 16x16 - about 1136 images
 * 20x20 - about 4505 images
 * 24x24 - about 1139 images
 
-file: samplesxx.vec
+file: xxsamples00.vec
 Where xx equal to 16, 20 or 24
 
 * 1 byte - width of dataset (w)
@@ -73,7 +73,7 @@ Number of weak classifiers times
 * 4 byte - Int - second pixel row
 * 4 byte - Int - second pixel column
 * 8 byte - Double - Log(1/betta)
-* 4 byte - Int - feature type
-* 4 byte - Int - feature parity
-* 8 byte - Double - accuracy on train set after adding this feature
-* 8 byte - Double - accuracy on test set after adding this feature
+* 4 byte - Int - feature type of weak classifier
+* 4 byte - Int - feature parity of weak classifier
+* 8 byte - Double - accuracy on train set after adding this weak classifier
+* 8 byte - Double - accuracy on test set after adding this weak classifier

@@ -2,15 +2,15 @@
 
 int Image::get_width() const
 {
-	return width_;
+    return width_;
 }
 
 int Image::get_height() const
 {
-	return height_;
+    return height_;
 }
 
 int Image::get_pixel_value(const Pixel& pxl) const
 {
-	return static_cast<int>(v_img_[pxl.col_ + pxl.row_ * width_]);
+    return static_cast<int>(v_img_[pxl.col_ + pxl.row_ * width_]);
 }
