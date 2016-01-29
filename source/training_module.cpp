@@ -112,7 +112,7 @@ bool TrainingModule::initData(const std::string& data_filename)
 
 	if (!ifs.get(c))
 	{
-		std::cout << "Error: reading width.";
+		std::cout << "Error: reading height.";
 		return false;
 	}
 	height = static_cast<int>(static_cast<uint8_t>(c));
